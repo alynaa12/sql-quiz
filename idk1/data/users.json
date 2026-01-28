@@ -1,0 +1,13 @@
+[
+  {
+    "username": "Zena",
+    "role": "ADMIN",
+    "highscore": 3
+  },
+  {
+    "username": "Alina",
+    "role": "STUDENT",
+    "highscore": 5
+  },
+  { "username": "Kim", "role": "EDITOR", "highscore": 1 }
+]
