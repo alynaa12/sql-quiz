@@ -29,5 +29,26 @@ public class UserRepository {
 
         return "User not found";
     }
+    public void increaseHighscore(String username, int amount) {
+        try {
+            Gson gson = new Gson();
+            Type userListType = new TypeToken<List<User>>() {}.getType();
+            List<User> users = gson.fromJson(new FileReader(USER_FILE), userListType);
+
+            for (User user : users) {
+                if (user.getUsername().equals(username)) {
+                    user.setHighscore(user.getHighscore() + amount);
+                }
+            }
+
+            java.io.FileWriter writer = new java.io.FileWriter(USER_FILE);
+            gson.toJson(users, writer);
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not update highscore", e);
+        }
+    }
+
 }
 
