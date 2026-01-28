@@ -22,6 +22,12 @@ public class MenuView {
         Label hello = new Label("Hallo " + user.getUsername() + " (" + user.getRole() + ")");
 
         Button startQuizButton = new Button("Quiz starten");
+        startQuizButton.setOnAction(e -> {
+            QuizView quizView = new QuizView(stage, user);
+            stage.getScene().setRoot(quizView.getRoot());
+            stage.setTitle("SQL Quiz - Quiz");
+        });
+
         Button showHighscoreButton = new Button("Highscore anzeigen");
 
         root.getChildren().addAll(hello, startQuizButton, showHighscoreButton);
