@@ -5,7 +5,9 @@ import com.google.gson.reflect.TypeToken;
 import org.example.model.Question;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionRepository {
@@ -16,10 +18,24 @@ public class QuestionRepository {
         try {
             Gson gson = new Gson();
             Type questionListType = new TypeToken<List<Question>>() {}.getType();
-            return gson.fromJson(new FileReader(QUESTION_FILE), questionListType);
+            List<Question> questions = gson.fromJson(new FileReader(QUESTION_FILE), questionListType);
+            return questions != null ? questions : new ArrayList<>();
         } catch (Exception e) {
             throw new RuntimeException("Could not load questions", e);
         }
     }
+
+    public void saveAllQuestions(List<Question> questions) {
+        try {
+            Gson gson = new Gson();
+            FileWriter writer = new FileWriter(QUESTION_FILE);
+            gson.toJson(questions, writer);
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not save questions", e);
+        }
+    }
 }
+
 

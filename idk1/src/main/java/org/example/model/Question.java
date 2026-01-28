@@ -35,5 +35,17 @@ public class Question {
     public int getCorrectIndex() {
         return correctIndex;
     }
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setOptions(java.util.List<String> options) {
+        this.options = options;
+    }
+
+    public void setCorrectIndex(int correctIndex) {
+        this.correctIndex = correctIndex;
+    }
+
 }
 
