@@ -27,6 +27,12 @@ public class MenuView {
         root.getChildren().addAll(hello, startQuizButton, showHighscoreButton);
         Button manageQuestionsButton = new Button("Fragen verwalten");
         root.getChildren().add(manageQuestionsButton);
+        manageQuestionsButton.setOnAction(e -> {
+            QuestionManagementView view = new QuestionManagementView(stage, user);
+            stage.getScene().setRoot(view.getRoot());
+            stage.setTitle("SQL Quiz - Fragen verwalten");
+        });
+
 
 
     }
