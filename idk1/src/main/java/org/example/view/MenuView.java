@@ -29,6 +29,12 @@ public class MenuView {
         });
 
         Button showHighscoreButton = new Button("Highscore anzeigen");
+        showHighscoreButton.setOnAction(e -> {
+            HighscoreView highscoreView = new HighscoreView(stage, user);
+            stage.getScene().setRoot(highscoreView.getRoot());
+            stage.setTitle("SQL Quiz - Highscore");
+        });
+
 
         root.getChildren().addAll(hello, startQuizButton, showHighscoreButton);
         Button manageQuestionsButton = new Button("Fragen verwalten");
