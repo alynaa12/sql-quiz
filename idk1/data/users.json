@@ -1,1 +1,6 @@
-[{"username":"Zena","role":"ADMIN","highscore":5},{"username":"Alina","role":"STUDENT","highscore":9},{"username":"Kim","role":"EDITOR","highscore":1}]
+[
+  { "username": "Axel Muster", "role": "STUDENT", "highscore": 100 },
+  { "username": "Kim Beispiel", "role": "ADMIN", "highscore": 1 },
+  { "username": "Zena", "role": "ADMIN", "highscore": 3 },
+  { "username": "Alina", "role": "STUDENT", "highscore": 5 }
+]
