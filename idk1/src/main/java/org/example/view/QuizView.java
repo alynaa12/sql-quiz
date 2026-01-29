@@ -26,15 +26,21 @@ public class QuizView {
     };
 
     private final Label feedbackLabel = new Label();
+    private final Label pointsLabel = new Label();
+
 
     private final ComboBox<String> difficultyBox = new ComboBox<>();
     private final Button nextButton = new Button("Nächste Frage");
     private final Button backButton = new Button("Zurück zum Menü");
 
     private boolean lastAnswerCorrect = false;
+    private int lastPointsShown = 0;
+
 
     public QuizView(Stage stage, User user) {
         this.quizController = new QuizController(user.getUsername());
+        lastPointsShown = quizController.getPointsAwardedCount();
+        pointsLabel.setText("");
 
         root.setPadding(new Insets(16));
 
@@ -59,10 +65,17 @@ public class QuizView {
         // Buttons bottom
         nextButton.setDisable(true);
         nextButton.setOnAction(e -> {
-            // difficulty submit AFTER answering (requirements)
             quizController.submitDifficulty(lastAnswerCorrect, difficultyBox.getValue());
+
+            int pointsNow = quizController.getPointsAwardedCount();
+            if (pointsNow > lastPointsShown) {
+                lastPointsShown = pointsNow;
+                pointsLabel.setText("🎉 +1 Punkt! Wiederholungsrunde abgeschlossen.");
+            }
+
             loadNextQuestion();
         });
+
 
         backButton.setOnAction(e -> {
             MenuView menuView = new MenuView(stage, user);
@@ -79,6 +92,7 @@ public class QuizView {
                 questionLabel,
                 answersBox,
                 feedbackLabel,
+                pointsLabel,
                 difficultyRow,
                 bottomButtons
         );
@@ -89,6 +103,9 @@ public class QuizView {
 
     private void loadNextQuestion() {
         feedbackLabel.setText("");
+
+
+
         nextButton.setDisable(true);
         setAnswerButtonsDisabled(false);
 
@@ -108,6 +125,7 @@ public class QuizView {
     }
 
     private void handleAnswerClick(int chosenIndex) {
+        pointsLabel.setText("");
         // evaluate answer through controller
         lastAnswerCorrect = quizController.submitAnswer(chosenIndex);
 

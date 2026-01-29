@@ -10,6 +10,12 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+/**
+ * Core quiz logic (no GUI):
+ * - Provides next questions
+ * - Manages repetition pool (spaced repetition)
+ * - Awards +1 point after a full round of normal questions
+ */
 public class QuizEngine {
 
     private final String username;
@@ -21,11 +27,16 @@ public class QuizEngine {
     private final List<Question> allQuestions;
     private int normalIndex = 0;
 
+    // repetition queue contains question IDs
     private final Deque<Integer> repetitionQueue = new ArrayDeque<>();
     private int normalCounterSinceRepetition = 0;
 
+    // tracks whether the CURRENT question came from repetition
     private boolean lastWasRepetition = false;
-    private int repetitionRoundPointsGiven = 0;
+
+    // round/points: +1 after ALL normal questions answered once
+    private int normalAnsweredThisRound = 0;
+    private int pointsAwardedCount = 0;
 
     private Question currentQuestion;
 
@@ -33,7 +44,7 @@ public class QuizEngine {
         this.username = username;
         this.allQuestions = questionRepo.loadAllQuestions();
 
-        // lade bestehende Wiederholungen aus Datei (für diesen User)
+        // load repetition items for this user
         for (RepetitionItem item : repetitionRepo.loadAll()) {
             if (item.getUsername().equals(username)) {
                 repetitionQueue.addLast(item.getQuestionId());
@@ -41,45 +52,68 @@ public class QuizEngine {
         }
     }
 
+    /**
+     * Returns the next question.
+     * After 3 normal questions, a repetition question is asked if available.
+     */
     public Question nextQuestion() {
-        // alle 3 normalen Fragen: wenn Wiederholung da ist, stelle Wiederholung
+        // after 3 normal questions: ask repetition if available
         if (normalCounterSinceRepetition >= 3 && !repetitionQueue.isEmpty()) {
             int qId = repetitionQueue.removeFirst();
             currentQuestion = findById(qId);
+
             lastWasRepetition = true;
             normalCounterSinceRepetition = 0;
+
             return currentQuestion;
         }
 
-        // normale Frage
+        // otherwise normal question (loop through list)
+        if (allQuestions.isEmpty()) {
+            throw new IllegalStateException("No questions available in questions.json");
+        }
+
         if (normalIndex >= allQuestions.size()) {
-            // wieder von vorne (einfachste Variante)
             normalIndex = 0;
         }
 
         currentQuestion = allQuestions.get(normalIndex);
         normalIndex++;
+
         lastWasRepetition = false;
         normalCounterSinceRepetition++;
+
         return currentQuestion;
     }
 
+    /**
+     * Checks the selected answer index against the correct index.
+     */
     public boolean submitAnswer(int chosenIndex) {
         return chosenIndex == currentQuestion.getCorrectIndex();
     }
 
+    /**
+     * Stores repetition decision and awards points after a full normal round.
+     * Rule: wrong OR difficulty == "schwer" => put into repetition pool.
+     * Points: +1 after all normal questions answered once (repetition does not count).
+     */
     public void submitDifficulty(boolean wasCorrect, String difficulty) {
-        // Regel: falsch ODER schwer => in Wiederholung
+        // 1) repetition rule
         if (!wasCorrect || "schwer".equalsIgnoreCase(difficulty)) {
             addToRepetitionIfMissing(currentQuestion.getId());
             saveRepetitionToFile();
         }
 
-        // Punkte: nur für abgeschlossene Wiederholungsrunde
-        // Einfach: Wenn wir gerade eine Wiederholungsfrage gemacht haben UND Queue danach leer ist => +1 Punkt
-        if (lastWasRepetition && repetitionQueue.isEmpty()) {
-            increaseUserHighscoreBy1();
-            repetitionRoundPointsGiven++;
+        // 2) point rule: only count NORMAL questions (not repetition)
+        if (!lastWasRepetition) {
+            normalAnsweredThisRound++;
+
+            if (normalAnsweredThisRound >= allQuestions.size()) { // e.g. 11
+                normalAnsweredThisRound = 0;
+                userRepo.increaseHighscore(username, 1);
+                pointsAwardedCount++;
+            }
         }
     }
 
@@ -90,13 +124,12 @@ public class QuizEngine {
     }
 
     private void saveRepetitionToFile() {
-        // speichere nur die Queue für diesen User (einfach, aber ok für Abgabe)
         List<RepetitionItem> all = repetitionRepo.loadAll();
 
-        // entferne alte Einträge dieses Users
+        // remove old items of this user
         all.removeIf(item -> item.getUsername().equals(username));
 
-        // füge aktuelle Queue ein
+        // write current queue
         for (Integer qId : repetitionQueue) {
             all.add(new RepetitionItem(username, qId));
         }
@@ -104,20 +137,26 @@ public class QuizEngine {
         repetitionRepo.saveAll(all);
     }
 
-    private void increaseUserHighscoreBy1() {
-        userRepo.increaseHighscore(username, 1);
-    }
-
     private Question findById(int id) {
         for (Question q : allQuestions) {
             if (q.getId() == id) return q;
         }
-        // Fallback: wenn nicht gefunden, nimm erste
+        // fallback
         return allQuestions.get(0);
     }
 
+    /**
+     * Used by GUI to show the "+1 point" message exactly when a point was awarded.
+     */
+    public int getPointsAwardedCount() {
+        return pointsAwardedCount;
+    }
+
+    /**
+     * Keep this for compatibility if your controller/view still calls it.
+     * Since points are now awarded per full round, this will stay at 0.
+     */
     public int getRepetitionRoundPointsGiven() {
-        return repetitionRoundPointsGiven;
+        return 0;
     }
 }
-
