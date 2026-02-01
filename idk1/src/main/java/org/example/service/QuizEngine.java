@@ -14,7 +14,9 @@ import java.util.List;
  * Core quiz logic (no GUI):
  * - Provides next questions
  * - Manages repetition pool (spaced repetition)
- * - Awards +1 point after a full round of normal questions
+ * - Adds questions to repetition when wrong or rated "schwer"
+ * - Removes questions from repetition when correct and rated "leicht/mittel"
+ * - Awards +1 point after a full round of normal questions (all questions once)
  */
 public class QuizEngine {
 
@@ -34,7 +36,7 @@ public class QuizEngine {
     // tracks whether the CURRENT question came from repetition
     private boolean lastWasRepetition = false;
 
-    // round/points: +1 after ALL normal questions answered once
+    // points: +1 after ALL normal questions answered once (repetition does not count)
     private int normalAnsweredThisRound = 0;
     private int pointsAwardedCount = 0;
 
@@ -57,6 +59,10 @@ public class QuizEngine {
      * After 3 normal questions, a repetition question is asked if available.
      */
     public Question nextQuestion() {
+        if (allQuestions.isEmpty()) {
+            throw new IllegalStateException("No questions available in questions.json");
+        }
+
         // after 3 normal questions: ask repetition if available
         if (normalCounterSinceRepetition >= 3 && !repetitionQueue.isEmpty()) {
             int qId = repetitionQueue.removeFirst();
@@ -69,10 +75,6 @@ public class QuizEngine {
         }
 
         // otherwise normal question (loop through list)
-        if (allQuestions.isEmpty()) {
-            throw new IllegalStateException("No questions available in questions.json");
-        }
-
         if (normalIndex >= allQuestions.size()) {
             normalIndex = 0;
         }
@@ -95,21 +97,34 @@ public class QuizEngine {
 
     /**
      * Stores repetition decision and awards points after a full normal round.
-     * Rule: wrong OR difficulty == "schwer" => put into repetition pool.
-     * Points: +1 after all normal questions answered once (repetition does not count).
+     * Rule:
+     *  - wrong OR difficulty == "schwer" => put into repetition pool
+     *  - correct AND difficulty != "schwer" => remove from repetition pool (if present)
+     *
+     * Points:
+     *  - +1 after all normal questions were answered once
+     *  - repetition questions do not count towards the round
      */
     public void submitDifficulty(boolean wasCorrect, String difficulty) {
-        // 1) repetition rule
-        if (!wasCorrect || "schwer".equalsIgnoreCase(difficulty)) {
-            addToRepetitionIfMissing(currentQuestion.getId());
-            saveRepetitionToFile();
+        int id = currentQuestion.getId();
+        boolean isHard = "schwer".equalsIgnoreCase(difficulty);
+
+        // 1) repetition pool logic
+        if (!wasCorrect || isHard) {
+            addToRepetitionIfMissing(id);
+        } else {
+            // correct AND not hard -> remove from repetition (fixes repeated Q1/Q2)
+            repetitionQueue.removeIf(qId -> qId == id);
         }
 
-        // 2) point rule: only count NORMAL questions (not repetition)
+        // always persist repetition changes
+        saveRepetitionToFile();
+
+        // 2) points logic (only NORMAL questions)
         if (!lastWasRepetition) {
             normalAnsweredThisRound++;
 
-            if (normalAnsweredThisRound >= allQuestions.size()) { // e.g. 11
+            if (normalAnsweredThisRound >= allQuestions.size()) {
                 normalAnsweredThisRound = 0;
                 userRepo.increaseHighscore(username, 1);
                 pointsAwardedCount++;
@@ -154,7 +169,7 @@ public class QuizEngine {
 
     /**
      * Keep this for compatibility if your controller/view still calls it.
-     * Since points are now awarded per full round, this will stay at 0.
+     * Points are awarded per full normal round, not per repetition round.
      */
     public int getRepetitionRoundPointsGiven() {
         return 0;
