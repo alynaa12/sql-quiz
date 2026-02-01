@@ -112,6 +112,9 @@ public class QuizEngine {
         // 1) repetition pool logic
         if (!wasCorrect || isHard) {
             addToRepetitionIfMissing(id);
+            if (!lastWasRepetition){
+                normalCounterSinceRepetition = 0;
+            }
         } else {
             // correct AND not hard -> remove from repetition (fixes repeated Q1/Q2)
             repetitionQueue.removeIf(qId -> qId == id);
