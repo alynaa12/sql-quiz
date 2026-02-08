@@ -2,6 +2,11 @@ package org.example.model;
 
 import java.util.List;
 
+/**
+ * represents a single question
+ * a question, a list of possible answer options and the index of the correct answer. Instances of this class are stored and loaded from JSON Files
+ */
+
 public class Question {
 
     private int id;
@@ -19,6 +24,11 @@ public class Question {
         this.options = options;
         this.correctIndex = correctIndex;
     }
+
+    /**
+     * creates a new question with all required attributes
+     * @return
+     */
 
     public int getId() {
         return id;

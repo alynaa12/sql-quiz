@@ -9,11 +9,22 @@ import javafx.stage.Stage;
 import org.example.model.User;
 
 /**
- * Main menu after login. Shows different options based on user role.
+ * Main menu view displayed after a succesfull login
+ * this view provides navigation options to start the quiz,
+ * view the highscore,
+ * manage questions and
+ * view the credits
+ * the available options are shown independently of the user role,while the role itself is displayed for transparency
  */
 public class MenuView {
 
     private final VBox root = new VBox();
+
+    /**
+     * creates the main menu view for the given user
+     * @param stage the main application stage
+     * @param user the currently logged-in user
+     */
 
     public MenuView(Stage stage, User user) {
         root.setPadding(new Insets(16));
@@ -57,9 +68,15 @@ public class MenuView {
 
     }
 
+    /**
+     * returns the root node of this view
+     * @return JavaFX root node
+     */
+
 
 
     public Parent getRoot() {
+
         return root;
     }
 }

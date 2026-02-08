@@ -10,10 +10,19 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Repository responsible for persisting repetition data
+ * This class stores and loads {@link RepetitionItem} objects from a JSON File each  entry links a user to a question that should be repeated as part of the space repetition mechanism
+ */
+
 public class RepetitionRepository {
 
     private static final String REP_FILE = "data/repetition.json";
 
+    /**
+     * loads all repetition items from the JSON file
+     * @return list of repetition itema, or an empty list if none exist
+     */
     public List<RepetitionItem> loadAll() {
         try {
             Gson gson = new Gson();
@@ -21,9 +30,15 @@ public class RepetitionRepository {
             List<RepetitionItem> items = gson.fromJson(new FileReader(REP_FILE), listType);
             return items != null ? items : new ArrayList<>();
         } catch (Exception e) {
+            // return empty list if file does not exist or cannot be read
             return new ArrayList<>();
         }
     }
+
+    /**
+     * saves all repetition items to the JSON file
+     * @param items list of repetition items to persist
+     */
 
     public void saveAll(List<RepetitionItem> items) {
         try {

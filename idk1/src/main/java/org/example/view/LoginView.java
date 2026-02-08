@@ -11,13 +11,21 @@ import org.example.controller.AuthController;
 import org.example.model.User;
 
 /**
- * Login screen (UI only). Calls AuthController for login logic.
+ * login view of the application
+ * This view allows a user to enter a username and start a sessions
+ * authentication logic is delegated to the {@link AuthController}, keeping this class free of business logic
  */
 public class LoginView {
+    /** root layout of the login view */
 
     private final VBox root = new VBox();
+    /** controller responsible for authentication logic */
     private final AuthController authController = new AuthController();
 
+    /**
+     * creates the login view
+     * @param stage the main application stage
+     */
     public LoginView(Stage stage) {
         root.setPadding(new Insets(16));
         root.setSpacing(10);
@@ -45,6 +53,11 @@ public class LoginView {
 
         root.getChildren().addAll(title, info, usernameField, loginButton, messageLabel);
     }
+
+    /**
+     * returns the root node of this view
+     * @return JavaFX root node
+     */
 
     public Parent getRoot() {
         return root;

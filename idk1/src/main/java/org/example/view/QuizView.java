@@ -11,7 +11,10 @@ import org.example.model.Question;
 import org.example.model.User;
 
 /**
- * Quiz screen (UI only). Uses QuizController to run the quiz logic.
+ * Quiz view of the application.
+ * this view displays questions and answer options and provides immediate feedback (true or false)
+ * the user also selects a difficulty rating after each question , which is forwarded to the quiz logic
+ * all business logic is delegated to {@link QuizController} to keep the GUI free of core logic
  */
 public class QuizView {
 
@@ -20,21 +23,28 @@ public class QuizView {
     private final QuizController quizController;
     private Question currentQuestion;
 
+    /** anser buttons for the 4 options */
     private final Label questionLabel = new Label();
     private final Button[] answerButtons = new Button[] {
             new Button(), new Button(), new Button(), new Button()
     };
-
+/** label for correct / incorrect feedback*/
     private final Label feedbackLabel = new Label();
     private final Label pointsLabel = new Label();
 
-
+/** difficulty selection (leicht,mittel,schwer) */
     private final ComboBox<String> difficultyBox = new ComboBox<>();
     private final Button nextButton = new Button("Nächste Frage");
     private final Button backButton = new Button("Zurück zum Menü");
 
     private boolean lastAnswerCorrect = false;
     private int lastPointsShown = 0;
+
+    /**
+     * creates the quiz view
+     * @param stage main application stage
+     * @param user currently logged-in user
+     */
 
 
     public QuizView(Stage stage, User user) {
@@ -101,6 +111,11 @@ public class QuizView {
         loadNextQuestion();
     }
 
+    /**
+     * loads and displays the next questions from the quiz controlle.
+     * resets feedback and re-enables answer buttons
+     */
+
     private void loadNextQuestion() {
         feedbackLabel.setText("");
 
@@ -124,6 +139,11 @@ public class QuizView {
         }
     }
 
+    /**
+     * handles a click on an answer button, evaluates the answer, displays feedback and enables the "next" button
+     * @param chosenIndex chosen answer index
+     */
+
     private void handleAnswerClick(int chosenIndex) {
         pointsLabel.setText("");
         // evaluate answer through controller
@@ -140,11 +160,21 @@ public class QuizView {
         nextButton.setDisable(false);
     }
 
+    /**
+     * enables od disables all answer buttons
+     * @param disabled true or disable , false to enable
+     */
+
     private void setAnswerButtonsDisabled(boolean disabled) {
         for (Button b : answerButtons) {
             b.setDisable(disabled);
         }
     }
+
+    /**
+     * return the root node of this view
+     * @return JavaFX root node
+     */
 
     public Parent getRoot() {
         return root;

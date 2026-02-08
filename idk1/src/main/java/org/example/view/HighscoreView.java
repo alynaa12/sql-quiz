@@ -10,13 +10,21 @@ import org.example.model.User;
 import org.example.persistence.UserRepository;
 
 /**
- * Shows the current highscore of the logged-in user.
+ * view displaying the highscore of the currently logged-in user
+ * this screen reads the users highscore from the peristence layerand presents it in a simple and readable format
+ * it contains no application logic and only handles UI rendering
  */
 public class HighscoreView {
 
     private final VBox root = new VBox(10);
 
+    /**
+     * creates the highscore view
+     * @param stage the main application stage
+     * @param user the currently logged-in user
+     */
     public HighscoreView(Stage stage, User user) {
+
         root.setPadding(new Insets(16));
 
         Label title = new Label("Highscore");
@@ -37,6 +45,11 @@ public class HighscoreView {
 
         root.getChildren().addAll(title, nameLabel, scoreLabel, backButton);
     }
+
+    /**
+     * returns the root node of this view
+     * @return JavaFX root node
+     */
 
     public Parent getRoot() {
         return root;

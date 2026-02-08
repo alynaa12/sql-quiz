@@ -17,14 +17,24 @@ import java.util.List;
 
 /**
  * View to manage questions (list + add question form).
- * UI only; calls QuestionController for persistence.
+ *
+ * this screen shows all existing questions and provides a form to add new questions
+ * it also allows deleting a selected question
+ * the view contains UI code only and delegates persistence operations to the {@link QuestionController}
  */
 public class QuestionManagementView {
 
     private final VBox root = new VBox();
     private final QuestionController questionController = new QuestionController();
 
+    /** list of questions shown to user*/
     private final ListView<String> listView = new ListView<>();
+
+    /**
+     * creates the questions management view
+     * @param stage the main application stage
+     * @param user the currently logged-in user
+     */
 
     public QuestionManagementView(Stage stage, User user) {
         root.setPadding(new Insets(16));
@@ -91,6 +101,10 @@ public class QuestionManagementView {
         root.getChildren().addAll(title, topButtons, listView, addForm);
     }
 
+    /**
+     * loads all questions via the controller and displays them in the list
+     */
+
     private void loadQuestionsIntoList() {
         listView.getItems().clear();
         List<Question> questions = questionController.getAllQuestions();
@@ -98,6 +112,12 @@ public class QuestionManagementView {
             listView.getItems().add(q.getId() + ": " + q.getText());
         }
     }
+
+    /**
+     * creates the UI form that allows adding a new question
+     * the form validates input and calls {@link QuestionController#addQuestion(String, List, int)}
+     * @return VBox containing the add question form
+     */
 
     private VBox createAddForm() {
         VBox form = new VBox(8);
@@ -173,6 +193,10 @@ public class QuestionManagementView {
         return form;
     }
 
+    /**
+     * returns the root node of this view
+     * @return JavaFX root node
+     */
 
 
     public Parent getRoot() {

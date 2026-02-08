@@ -10,10 +10,20 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuestionRepository {
+/**
+ * repository responsible for persisting quiz questions
+ * This class loads and stores objects from and to a JSON file
+ * It abstracts file access from the rest of the application
+ */
 
+public class QuestionRepository {
+/** path to the JSON file containing all quiz questions */
     private static final String QUESTION_FILE = "data/questions.json";
 
+    /**
+     * loads all questions from the JSON file
+     * @return list of all stored questions, or an empty list if none exist
+     */
     public List<Question> loadAllQuestions() {
         try {
             Gson gson = new Gson();
@@ -24,6 +34,11 @@ public class QuestionRepository {
             throw new RuntimeException("Could not load questions", e);
         }
     }
+
+    /**
+     * saves all given questions to the JSON file
+     * @param questions list of question to persist
+     */
 
     public void saveAllQuestions(List<Question> questions) {
         try {

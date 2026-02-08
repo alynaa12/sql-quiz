@@ -4,7 +4,9 @@ import org.example.model.User;
 import org.example.persistence.UserRepository;
 
 /**
- * Handles authentication use cases (e.g., login) and keeps GUI free of logic.
+ * controller responsible for user authentication.
+ * this class handles login-related logic and acts as a bridge between the GUI layer and the persistance layer
+ *  and keeps GUI free of logic.
  */
 public class AuthController {
 
