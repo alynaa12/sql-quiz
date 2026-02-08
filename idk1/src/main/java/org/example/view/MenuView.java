@@ -34,9 +34,17 @@ public class MenuView {
             stage.getScene().setRoot(highscoreView.getRoot());
             stage.setTitle("SQL Quiz - Highscore");
         });
+        Button creditsButton = new Button("Credits");
+        creditsButton.setOnAction(e -> {
+            CreditsView creditsView = new CreditsView(stage, user);
+            stage.getScene().setRoot(creditsView.getRoot());
+            stage.setTitle("SQL Quiz - Credits");
+        });
 
 
-        root.getChildren().addAll(hello, startQuizButton, showHighscoreButton);
+
+
+        root.getChildren().addAll(hello, startQuizButton, showHighscoreButton, creditsButton);
         Button manageQuestionsButton = new Button("Fragen verwalten");
         root.getChildren().add(manageQuestionsButton);
         manageQuestionsButton.setOnAction(e -> {
